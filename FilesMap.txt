@@ -1,0 +1,29 @@
+Files description:
+
+
+
+antlr4.bat: the generic batch file to run antlr on a grammar
+
+compile.bat: a batch file I used to call antlr4 and compile the .java files
+
+FilesMap.txt: this file
+
+indentedTree.txt: an example of an indented tree, for if you want to attempt the extra credit
+
+MiniJava.g4: a grammar for MiniJava, modified from assignment 1
+
+run.bat: a batch file I used to run the TestGrammar program on TestLinkedList.java & Precedence.java
+
+Precedence.java: to use as input, unchanged from assignment 1
+
+TestLinkedList.java: to use as input, unchanged from assignment 1
+
+SymbolAttributes.java: a class describing an entry in the symbol table
+
+SymbolTable.java: a class with code for implementing the Symbol Table
+
+SymTableVisitor.java: a class extending the generated MiniJavaBaseVisitor class. It contains the code to visit the parse tree and generate the symbol table.
+
+TestGrammar.java: the program that parses the MiniJava program, produces the parse tree, and visits the parse tree to generate a rudimentary symbol table.
+
+To run this program, I run the compile.bat batch file, then the run.bat batch file. If we don't need recompiling, just run the run.bat batch file again.

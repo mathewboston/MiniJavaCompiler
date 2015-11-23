@@ -1,6 +1,6 @@
 /*
 Mathew Boston Minijava
-Rev 4
+Rev 4.0
  */
 
 grammar MiniJava;

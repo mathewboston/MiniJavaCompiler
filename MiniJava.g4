@@ -1,12 +1,13 @@
 /*
 Mathew Boston Minijava
+Rev 4
  */
- 
+
 grammar MiniJava;
 
 prog : mainClass classDecl*;
 
-mainClass : 'class' ID '{' 'public' 'static' 'void' 'main' '(' 'String' 
+mainClass : 'class' ID '{' 'public' 'static' 'void' 'main' '(' 'String'
             '[' ']' ID ')' '{' varDecl* statement* '}' '}' ;
 
 classDecl : 'class' ID '{' fieldDecl* methodDecl* '}' ;
@@ -24,7 +25,7 @@ type returns [String t] : 'int' '[' ']' 	#intArrayType
      | 'int' 					#intType
      | ID 					#classType;
 
-statement : '{' statement* '}' 					#blockStat 
+statement : '{' statement* '}' 					#blockStat
           | 'if' '(' expr ')' statement 'else' statement 	#ifStat
           | 'while' '(' expr ')' statement 			#whileStat
           | 'System.out.println' '(' expr ')' ';' 		#printStat
@@ -32,20 +33,20 @@ statement : '{' statement* '}' 					#blockStat
           | ID '[' expr ']' '=' expr ';' 			#assignArrayStat;
 
 expr returns [String t] : expr '[' expr']' 	   	#arrayExpr
-     | expr '.' ID '(' ( expr ( ',' expr )* )? ')' 	#methodCallExpr 
+     | expr '.' ID '(' ( expr ( ',' expr )* )? ')' 	#methodCallExpr
      | ( '+' | '-' ) expr 				#uniExpr
      | '!' expr 					#notExpr
      | expr '*' expr 					#multExpr
      | expr ('+'|'-') expr 				#plusMinusExpr
      | expr '<' expr 					#lessThanExpr
      | expr '&&' expr 					#andExpr
-     | atom 						#atomExpr; 
-   
+     | atom 						#atomExpr;
+
 atom returns [String t] : INT		#intExpr
      | ID 				#idExpr
      | 'new' ID '(' ')' 		#newExpr
-     | '(' expr ')'			#parenthesizedExpr  	
-     | atom '.' 'length'		#lengthExpr 
+     | '(' expr ')'			#parenthesizedExpr
+     | atom '.' 'length'		#lengthExpr
      | 'new' 'int' '['atom']' 		#newArrayExpr
      | 'true' 				#trueExpr
      | 'false'				#falseExpr

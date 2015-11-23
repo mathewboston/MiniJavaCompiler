@@ -1,0 +1,3 @@
+java TestTypeCheckVisitor TestLinkedList.java
+java TestTypeCheckVisitor Precedence.java
+java TestTypeCheckVisitor

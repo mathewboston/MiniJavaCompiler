@@ -24,6 +24,8 @@ SymbolTable.java: a class with code for implementing the Symbol Table
 
 SymTableVisitor.java: a class extending the generated MiniJavaBaseVisitor class. It contains the code to visit the parse tree and generate the symbol table.
 
-TestGrammar.java: the program that parses the MiniJava program, produces the parse tree, and visits the parse tree to generate a rudimentary symbol table.
+TestTypeCheckVisitor.java: the program that parses the MiniJava program, produces the parse tree, and visits the parse tree to generate a rudimentary symbol table.
+
+TypeCheckVisitor.java: the class that checks to insure all type match each other.
 
 To run this program, I run the compile.bat batch file, then the run.bat batch file. If we don't need recompiling, just run the run.bat batch file again.

@@ -6,13 +6,14 @@
  * We make no guarantees that this code is fit for any purpose. 
  * Visit http://www.pragmaticprogrammer.com/titles/tpantlr2 for more book information.
  ***/
+import java.util.ArrayList;
 
 public class SymTableVisitor extends MiniJavaBaseVisitor<Void> {
 	SymbolTable symTab = new SymbolTable("Classes","");
 	DebugMsg debug = new DebugMsg(true);
-	ErrorMsg error = new ErrorMsg(true); 
-	SymbolTable symLevel = symTab;
-	SymbolTable symMethod = symTab;
+	ErrorMsg error = new ErrorMsg(true);
+	int classID;
+	int methodID;
 
 	/* mainClass: 'class' ID '{' 'public' 'static' 'void' 'main'
     '(' 'String' '[' ']' ID ')' '{' varDecl* statement* '}' '}' */
@@ -23,11 +24,11 @@ public class SymTableVisitor extends MiniJavaBaseVisitor<Void> {
 		if (!symTab.addClass(ctx.ID(0).getText()))//add class to main symtable
 			System.out.println("could not add class "+ctx.ID(0).getText());
 		else{
-			symLevel = symTab.addSymbolTable(ctx.ID(0).getText(),"class"); //new symtable for class
-			symLevel.addMethod("main", "String"); //add main method to symtable
-			symMethod = symLevel.addSymbolTable("main","method"); //new symtable for main method
+			classID = symTab.addSymbolTable(ctx.ID(0).getText(),"class"); //new symtable for class
+			symTab.getSymbolTable(classID).addMethod("main", "String"); //add main method to symtable
+			methodID = symTab.getSymbolTable(classID).addSymbolTable("main","method"); //new symtable for main method
 		}
-		if (!symMethod.addParam(ctx.ID(1).getText(), "String")) //add params to symtable for method
+		if (!symTab.getSymbolTable(classID).getSymbolTable(methodID).addParam(ctx.ID(1).getText(), "String")) //add params to symtable for method
 			System.out.println("could not add parameter "+ctx.ID(1).getText());
 		visitChildren(ctx);
 		return null;
@@ -39,7 +40,7 @@ public class SymTableVisitor extends MiniJavaBaseVisitor<Void> {
 		if (!symTab.addClass(ctx.ID().getText()))//add class to main symtable
 			System.out.println("could not add class "+ctx.ID().getText());
 		else
-			symLevel = symTab.addSymbolTable(ctx.ID().getText(), "class"); //new symtable for class
+			classID = symTab.addSymbolTable(ctx.ID().getText(), "class"); //new symtable for class
 		visitChildren(ctx);
 		return null;    
 	}
@@ -49,11 +50,11 @@ public class SymTableVisitor extends MiniJavaBaseVisitor<Void> {
 		// ctx.ID().getText() returns the actual ID as a String
 		// ctx.type().t is the String returned by parsing type
 		visit(ctx.type());
-		if(symMethod.inSymbolTable(ctx.ID().getText())){
+		if(symTab.getSymbolTable(classID).getSymbolTable(methodID).inSymbolTable(ctx.ID().getText())){
 			System.out.println("\nERROR : local already defined within scope : "+ctx.ID().getText());
 			return null;
 		}
-		if (!symMethod.addLocal(ctx.ID().getText(), ctx.type().t)) //add variables to symtable for method
+		if (!symTab.getSymbolTable(classID).getSymbolTable(methodID).addLocal(ctx.ID().getText(), ctx.type().t)) //add variables to symtable for method
 			System.out.println("could not add local var "+ctx.ID().getText());
 		return null;
 	}
@@ -64,18 +65,18 @@ public class SymTableVisitor extends MiniJavaBaseVisitor<Void> {
 		// ctx.ID().getText() returns the actual ID as a String
 		// ctx.type().t is the String returned by parsing type
 		visit(ctx.type(0));
-		if (!symLevel.addMethod(ctx.ID(0).getText(), ctx.type(0).t))
+		if (!symTab.getSymbolTable(classID).addMethod(ctx.ID(0).getText(), ctx.type(0).t))
 			System.out.println("could not add method "+ctx.ID(0).getText());
 		else
-			symMethod = symLevel.addSymbolTable(ctx.ID(0).getText(),"method");  //new symtable for method
+			methodID = symTab.getSymbolTable(classID).addSymbolTable(ctx.ID(0).getText(),"method");  //new symtable for method
 		int pos = 1;
 		while(ctx.type(pos) != null){
 			visit(ctx.type(pos));
-			if(symMethod.inSymbolTable(ctx.ID(pos).getText())){
+			if(symTab.getSymbolTable(classID).getSymbolTable(methodID).inSymbolTable(ctx.ID(pos).getText())){
 				System.out.println("\nERROR : param already defined within scope : "+ctx.ID(pos).getText());
 				return null;
 			}
-			if (!symMethod.addParam(ctx.ID(pos).getText(), ctx.type(pos).t))  //add params to symtable for method
+			if (!symTab.getSymbolTable(classID).getSymbolTable(methodID).addParam(ctx.ID(pos).getText(), ctx.type(pos).t))  //add params to symtable for method
 				System.out.println("could not add parameter "+ctx.ID(pos).getText());
 			pos++;
 		}
@@ -88,11 +89,11 @@ public class SymTableVisitor extends MiniJavaBaseVisitor<Void> {
 		// ctx.ID().getText() returns the actual ID as a String
 		// ctx.type().t is the String returned by parsing type
 		visit(ctx.type());
-		if(symLevel.inSymbolTable(ctx.ID().getText())){
+		if(symTab.getSymbolTable(classID).inSymbolTable(ctx.ID().getText())){
 			System.out.println("\nERROR : field already defined within scope : "+ctx.ID().getText());
 			return null;
 		}
-		if (!symLevel.addField(ctx.ID().getText(), ctx.type().t))  //add fields to symtable for class
+		if (!symTab.getSymbolTable(classID).addField(ctx.ID().getText(), ctx.type().t))  //add fields to symtable for class
 			System.out.println("could not add field "+ctx.ID().getText());
 		return null;
 	}  

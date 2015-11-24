@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class SymbolTable {
 
 	HashMap<String, SymbolAttributes> symbols; // the main data structure
-	ArrayList<SymbolTable>  nextLevel; // internal leveling 
+	ArrayList<SymbolTable>  nextLevel; // internal leveling
 	public static final byte FIELD = 0, METHOD = 1, PARAM=2, LOCAL=3, CLASS=4;
 	public static final String[] kindString={"field","method","param","local","class"};
 	private String SymbolTableID;
@@ -16,7 +16,7 @@ public class SymbolTable {
 	private int classIDCount; //issue ids to all classes for leveling
 
 	SymbolTable(String id , String type){
-		//if(type == Class) 
+		//if(type == Class)
 		nextLevel = new ArrayList<SymbolTable>();
 		symbols = new HashMap<String, SymbolAttributes>(); // creates an empty hash table
 		SymbolTableID = id;
@@ -27,7 +27,7 @@ public class SymbolTable {
 
 	public boolean addClass(String id){
 		return symbols.put(id, new SymbolAttributes(id, CLASS)) == null;
-	}  
+	}
 
 	public boolean addField(String id, String type){
 		return symbols.put(id, new SymbolAttributes(id, FIELD, type)) == null;
@@ -60,7 +60,7 @@ public class SymbolTable {
 		return nextLevel.get(id);
 	}
 
-	public SymbolAttributes get(String id){    
+	public SymbolAttributes get(String id){
 		return symbols.get(id);
 	}
 
@@ -78,7 +78,7 @@ public class SymbolTable {
 		while(symbolsItr.hasNext()){
 			Map.Entry symbolsEntry = (Map.Entry) symbolsItr.next();
 			SymbolAttributes theAttribute = (SymbolAttributes) symbolsEntry.getValue();
-			if(theAttribute.symbolId.equals(id)) return true;      
+			if(theAttribute.symbolId.equals(id)) return true;
 		}
 		return false;
 	}
@@ -96,12 +96,11 @@ public class SymbolTable {
 			SymbolAttributes theAttribute = (SymbolAttributes) symbolsEntry.getValue();
 			if(SymbolTableType.equals(kindString[4])) System.out.print("     ");
 			if(SymbolTableType.equals(kindString[1])) System.out.print("              ");
-			theAttribute.printSymbolAttributes();      
+			theAttribute.printSymbolAttributes();
 		}
 		while(levelItr.hasNext()){
 			SymbolTable levelTable = (SymbolTable) levelItr.next();
-			levelTable.printSymbolTable();     
+			levelTable.printSymbolTable();
 		}
-
 	}
 }

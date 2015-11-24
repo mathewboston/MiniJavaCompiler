@@ -54,7 +54,7 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	public Void visitMethodDecl(MiniJavaParser.MethodDeclContext ctx) {
 		visitChildren(ctx);
 		if (!ctx.type(0).t.equals(ctx.methodBody().t))
-			error.report("return expression type ("+ctx.methodBody().t+") does not match method return type ("+ctx.type(0).t+")");
+			error.report(ctx,"return expression type ("+ctx.methodBody().t+") does not match method return type ("+ctx.type(0).t+")");
 		return null;
 	}
 	/*
@@ -74,7 +74,7 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	public Void visitIfStat(MiniJavaParser.IfStatContext ctx) {
 		visitChildren(ctx);
 		if (!"boolean".equals(ctx.expr().t))
-			error.report("condition in if statement must be boolean");
+			error.report(ctx,"condition in if statement must be boolean");
 		return null;
 	}
 	/*
@@ -83,7 +83,7 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	@Override public Void visitPrintStat(MiniJavaParser.PrintStatContext ctx) {
 		visitChildren(ctx);
 		if (!"int".equals(ctx.expr().t))
-			error.report("System.out.println expects an integer parameter");
+			error.report(ctx,"System.out.println expects an integer parameter");
 		return null;
 	}
 	/*
@@ -103,11 +103,11 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 			}
 		}
 		if (idSymbol==null)
-			error.report("undefined symbol in assignment: "+ctx.ID().getText());
+			error.report(ctx,"undefined symbol in assignment: "+ctx.ID().getText());
 		else if (idSymbol.kind == SymbolTable.CLASS)
-			error.report("Identifier cannot be a class");
+			error.report(ctx,"Identifier cannot be a class");
 		else if (idSymbol.kind == SymbolTable.METHOD)
-			error.report("Identifier cannot be a Method");
+			error.report(ctx,"Identifier cannot be a Method");
 		else if (!idSymbol.type.equals(ctx.expr().t))
 			error.report(ctx,"Assignment types don't match: "+idSymbol.type+" and "+ctx.expr().t);
 		return null;
@@ -129,9 +129,9 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 			n++;
 		}
 		if (methodSymbol == null)
-			error.report("Method not found: "+ctx.ID().getText());
+			error.report(ctx,"Method not found: "+ctx.ID().getText());
 		else if (methodSymbol.kind != SymbolTable.METHOD)
-			error.report("symbol is not a method");
+			error.report(ctx,"symbol is not a method");
 		// need to check parameter types
 		if (methodSymbol == null)
 			ctx.t = "";
@@ -150,7 +150,7 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		// although we don't need it here, we can check if it's a '+':
 		// if (ctx.op.getType()==MiniJavaParser.ADD) ...
 		if (!("int".equals(ctx.expr(0).t) && "int".equals(ctx.expr(1).t)))
-			error.report("+ and - operands must be int type");
+			error.report(ctx,"+ and - operands must be int type");
 		ctx.t="int";
 		return null;
 	}
@@ -160,16 +160,26 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		return null;
 	}
 	/*
-atom returns [String t]
-    : INT              #intExpr
-    | ID               #idExpr
-    | 'this'           #thisExpr
-    | 'new' ID '(' ')' #newExpr
-    | '(' expr ')'     #parenthesizedExpr
-    ;
+	atom returns [String t] : INT		                            #intExpr
+	     | ID 				                                          #idExpr
+	     | 'new' ID '(' ')' 		                                #newExpr
+	     | '(' expr ')'			                                    #parenthesizedExpr
+	     | atom '.' 'length'		                                #lengthExpr
+	     | 'new' 'int' '['atom']' 		                          #newArrayExpr
+	     | 'true' 				                                      #trueExpr
+	     | 'false'				                                      #falseExpr
+	     | 'this'			                                          #thisExpr;
 	 */
 	@Override public Void visitIntExpr(MiniJavaParser.IntExprContext ctx) {
 		ctx.t="int";
+		return null;
+	}
+	@Override public Void visitTrueExpr(MiniJavaParser.TrueExprContext ctx) {
+		ctx.t="boolean";
+		return null;
+	}
+	@Override public Void visitFalseExpr(MiniJavaParser.FalseExprContext ctx) {
+		ctx.t="boolean";
 		return null;
 	}
 	@Override public Void visitIdExpr(MiniJavaParser.IdExprContext ctx) {
@@ -185,7 +195,7 @@ atom returns [String t]
 			}
 		}
 		if (idSymbol==null){
-			error.report("undefined symbol: "+ctx.ID().getText());
+			error.report(ctx,"undefined symbol: "+ctx.ID().getText());
 			ctx.t = "";
 		}
 		else
@@ -203,9 +213,9 @@ atom returns [String t]
 		SymbolAttributes idSymbol=symTab.get(ctx.ID().getText());
 		ctx.t = "";
 		if (idSymbol==null)
-			error.report("undefined symbol in new expression: "+ctx.ID().getText());
+			error.report(ctx,"undefined symbol in new expression: "+ctx.ID().getText());
 		else if (idSymbol.kind != SymbolTable.CLASS)
-			error.report("Class name expected");
+			error.report(ctx,"Class name expected");
 		else
 			ctx.t = idSymbol.symbolId;
 		return null;

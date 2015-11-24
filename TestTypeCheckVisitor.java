@@ -18,7 +18,7 @@ public class TestTypeCheckVisitor {
             is = new FileInputStream(inputFile);
         }
         ANTLRInputStream input = new ANTLRInputStream(is);
-        MiniJavaLexer lexer = new MiniJavaLexer(input); 
+        MiniJavaLexer lexer = new MiniJavaLexer(input);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         MiniJavaParser parser = new MiniJavaParser(tokens);
         parser.setBuildParseTree(true);      // tell ANTLR to build a parse tree
@@ -30,9 +30,9 @@ public class TestTypeCheckVisitor {
         if (nerrors==0){
           SymTableVisitor symTableVisitor = new SymTableVisitor();
           symTableVisitor.visit(tree);
-          symTableVisitor.symTab.printSymbolTable();
-          
+
           if (!symTableVisitor.error.anyErrors){
+            symTableVisitor.symTab.printSymbolTable();
             TypeCheckVisitor typeCheckVisitor = new TypeCheckVisitor();
             typeCheckVisitor.setSymbolTable(symTableVisitor.symTab);
             typeCheckVisitor.visit(tree);

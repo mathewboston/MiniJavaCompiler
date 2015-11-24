@@ -40,8 +40,8 @@ class TestList{
 	// Insert a new node at the beginning of the list
 	public TestList Insert(int new_elem){
 		boolean ret_val ;
-		TestList aux03 ;
-		TestList aux02 ;
+		TestList aux03;
+		TestList aux02;
 		aux03 = this ;
 		aux02 = new TestList();
 		ret_val = aux02.InitNew(new_elem,aux03,false);

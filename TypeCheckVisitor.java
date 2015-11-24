@@ -92,8 +92,18 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	@Override public Void visitAssignStat(MiniJavaParser.AssignStatContext ctx) {
 		visitChildren(ctx);
 		SymbolAttributes idSymbol=symTab.getSymbolTable(classID).getSymbolTable(methodID).get(ctx.ID().getText());
+		if(idSymbol==null)
+			idSymbol=symTab.getSymbolTable(classID).get(ctx.ID().getText());
+		if(idSymbol==null){
+			int n = 0;
+			while(n<symTab.getSymbolTable(classID).getSymbolTableArrayLength()){
+				idSymbol=symTab.getSymbolTable(classID).getSymbolTable(n).get(ctx.ID().getText());
+				if(idSymbol != null) break;
+				n++;
+			}
+		}
 		if (idSymbol==null)
-			error.report("undefined symbol: "+ctx.ID().getText());
+			error.report("undefined symbol in assignment: "+ctx.ID().getText());
 		else if (idSymbol.kind == SymbolTable.CLASS)
 			error.report("Identifier cannot be a class");
 		else if (idSymbol.kind == SymbolTable.METHOD)
@@ -164,6 +174,16 @@ atom returns [String t]
 	}
 	@Override public Void visitIdExpr(MiniJavaParser.IdExprContext ctx) {
 		SymbolAttributes idSymbol=symTab.getSymbolTable(classID).getSymbolTable(methodID).get(ctx.ID().getText());
+		if(idSymbol==null)
+			idSymbol=symTab.getSymbolTable(classID).get(ctx.ID().getText());
+		if(idSymbol==null){
+			int n = 0;
+			while(n<symTab.getSymbolTable(classID).getSymbolTableArrayLength()){
+				idSymbol=symTab.getSymbolTable(classID).getSymbolTable(n).get(ctx.ID().getText());
+				if(idSymbol != null) break;
+				n++;
+			}
+		}
 		if (idSymbol==null){
 			error.report("undefined symbol: "+ctx.ID().getText());
 			ctx.t = "";
@@ -183,7 +203,7 @@ atom returns [String t]
 		SymbolAttributes idSymbol=symTab.get(ctx.ID().getText());
 		ctx.t = "";
 		if (idSymbol==null)
-			error.report("undefined symbol: "+ctx.ID().getText());
+			error.report("undefined symbol in new expression: "+ctx.ID().getText());
 		else if (idSymbol.kind != SymbolTable.CLASS)
 			error.report("Class name expected");
 		else

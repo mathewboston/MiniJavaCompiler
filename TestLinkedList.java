@@ -15,8 +15,8 @@ class TestLinkedList{
 }
 
 class TestList{
-	int elem ;
-	TestList next ;
+	//int elem ;
+	//TestList next ;
 	boolean end ;
 	//int elem ;
 

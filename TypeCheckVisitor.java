@@ -68,10 +68,27 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		return null;
 	}
 	/*
+	'{' statement* '}' #blockStat
+	 */
+	@Override public Void visitBlockStat(MiniJavaParser.BlockStatContext ctx) {
+		visitChildren(ctx);
+		return null;
+	}
+	/*
   |   'if' '(' expr ')' statement 'else' statement #ifStat
 	 */
 	@Override
 	public Void visitIfStat(MiniJavaParser.IfStatContext ctx) {
+		visitChildren(ctx);
+		if (!"boolean".equals(ctx.expr().t))
+			error.report(ctx,"condition in if statement must be boolean");
+		return null;
+	}
+	/*
+	|   'while' '(' expr ')' statement #whileStat
+	 */
+	@Override
+	public Void visitWhileStat(MiniJavaParser.WhileStatContext ctx) {
 		visitChildren(ctx);
 		if (!"boolean".equals(ctx.expr().t))
 			error.report(ctx,"condition in if statement must be boolean");
@@ -112,12 +129,49 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 			error.report(ctx,"Assignment types don't match: "+idSymbol.type+" and "+ctx.expr().t);
 		return null;
 	}
-	/* expr returns [String t]
-      : atom                     #atomExpr
-      | expr '.' ID '(' expr ')' #methodCallExpr
-      | expr op=('+'|'-') expr   #plusMinusExpr
-      | expr '<' expr            #lessThanExpr
-      ;
+
+	/*
+   |	ID '[' expr ']' '=' expr ';'                            #assignArrayStat
+
+	 Array is an int []. expr(1) must be of type int. expr(0) is array index, must
+	 be of type int. ID must be of type int []
+*/
+	@Override public Void visitAssignArrayStat(MiniJavaParser.AssignArrayStatContext ctx) {
+		visitChildren(ctx);
+		SymbolAttributes idSymbol=symTab.getSymbolTable(classID).getSymbolTable(methodID).get(ctx.ID().getText());
+		if(idSymbol==null)
+			idSymbol=symTab.getSymbolTable(classID).get(ctx.ID().getText());
+		if(idSymbol==null){
+			int n = 0;
+			while(n<symTab.getSymbolTable(classID).getSymbolTableArrayLength()){
+				idSymbol=symTab.getSymbolTable(classID).getSymbolTable(n).get(ctx.ID().getText());
+				if(idSymbol != null) break;
+				n++;
+			}
+		}
+		if (idSymbol==null)
+			error.report(ctx,"undefined symbol in assignment: "+ctx.ID().getText());
+		else if (idSymbol.kind == SymbolTable.CLASS)
+			error.report(ctx,"Identifier cannot be a class");
+		else if (idSymbol.kind == SymbolTable.METHOD)
+			error.report(ctx,"Identifier cannot be a Method");
+		else if (!"int []".equals(idSymbol.type))
+				error.report(ctx,ctx.ID() + ": Symbol must be of type int []");
+		else if (!"int".equals(ctx.expr(0).t))
+			error.report(ctx,"Array index type don't match: "+idSymbol.type+" and "+ctx.expr(0).t);
+		else if (!"int".equals(ctx.expr(1).t))
+			error.report(ctx,"Assignment types don't match: int and "+ctx.expr(1).t);
+		return null;
+	}
+/*	expr returns [String t] : expr '[' expr ']'	   	          #arrayExpr
+	     | expr '.' ID '(' ( expr ( ',' expr )* )? ')' 	        #methodCallExpr
+	     | ( '+' | '-' ) expr 				                          #uniExpr
+	     | '!' expr 					                                  #notExpr
+	     | expr '*' expr 					                              #multExpr
+	     | expr ('+'|'-') expr 				                          #plusMinusExpr
+	     | expr '<' expr 					                              #lessThanExpr
+	     | expr '&&' expr 					                            #andExpr
+	     | atom 						                                    #atomExpr;
 	 */
 	@Override public Void visitMethodCallExpr(MiniJavaParser.MethodCallExprContext ctx) {
 		visitChildren(ctx);
@@ -139,10 +193,36 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 			ctx.t=methodSymbol.type;
 		return null;
 	}
+	@Override public Void visitArrayExpr(MiniJavaParser.ArrayExprContext ctx) {
+		visitChildren(ctx);
+		if (!("int []".equals(ctx.expr(0).t)))
+					error.report(ctx,"Array needs to be of type int");
+		if (!( "int".equals(ctx.expr(1).t)))
+					error.report(ctx,"Array index needs to be of type int");
+		ctx.t="int";
+		return null;
+	}
 	@Override public Void visitLessThanExpr(MiniJavaParser.LessThanExprContext ctx) {
 		visitChildren(ctx);
-		if ("int".equals(ctx.expr(0).t) && "int".equals(ctx.expr(1).t))
-			ctx.t="boolean";
+		if (!("int".equals(ctx.expr(0).t) && "int".equals(ctx.expr(1).t)))
+					error.report(ctx,"< needs to be of type int");
+		ctx.t="boolean";
+		return null;
+	}
+	@Override public Void visitAndExpr(MiniJavaParser.AndExprContext ctx) {
+		visitChildren(ctx);
+		if (!("boolean".equals(ctx.expr(0).t) && "boolean".equals(ctx.expr(1).t)))
+				error.report(ctx,"&& needs to be of type boolean");
+		ctx.t="boolean";
+		return null;
+	}
+	@Override public Void visitMultExpr(MiniJavaParser.MultExprContext ctx) {
+		visitChildren(ctx);
+		// although we don't need it here, we can check if it's a '+':
+		// if (ctx.op.getType()==MiniJavaParser.ADD) ...
+		if (!("int".equals(ctx.expr(0).t) && "int".equals(ctx.expr(1).t)))
+			error.report(ctx,"* operands must be int type");
+		ctx.t="int";
 		return null;
 	}
 	@Override public Void visitPlusMinusExpr(MiniJavaParser.PlusMinusExprContext ctx) {
@@ -152,6 +232,22 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		if (!("int".equals(ctx.expr(0).t) && "int".equals(ctx.expr(1).t)))
 			error.report(ctx,"+ and - operands must be int type");
 		ctx.t="int";
+		return null;
+	}
+	@Override public Void visitUniExpr(MiniJavaParser.UniExprContext ctx) {
+		visitChildren(ctx);
+		// although we don't need it here, we can check if it's a '+':
+		// if (ctx.op.getType()==MiniJavaParser.ADD) ...
+		if (!("int".equals(ctx.expr().t)))
+			error.report(ctx,"uni + and - operand must be int type");
+		ctx.t="int";
+		return null;
+	}
+	@Override public Void visitNotExpr(MiniJavaParser.NotExprContext ctx) {
+		visitChildren(ctx);
+		if (!("boolean".equals(ctx.expr().t)))
+			error.report(ctx,"! operand must be boolean type");
+		ctx.t="boolean";
 		return null;
 	}
 	@Override public Void visitAtomExpr(MiniJavaParser.AtomExprContext ctx) {
@@ -215,9 +311,28 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		if (idSymbol==null)
 			error.report(ctx,"undefined symbol in new expression: "+ctx.ID().getText());
 		else if (idSymbol.kind != SymbolTable.CLASS)
-			error.report(ctx,"Class name expected");
+			error.report(ctx,"Class name expected in new expression");
 		else
 			ctx.t = idSymbol.symbolId;
+		return null;
+	}
+	@Override public Void visitLengthExpr(MiniJavaParser.LengthExprContext ctx) {
+  visitChildren(ctx);
+		SymbolAttributes idSymbol=symTab.get(ctx.atom().t);
+		ctx.t = "";
+		if (idSymbol==null)
+			error.report(ctx,"undefined symbol in .length expression: "+ctx.atom().t);
+		else if (idSymbol.kind != SymbolTable.CLASS)
+			error.report(ctx,"Class name expected in .length expression");
+		else
+			ctx.t = idSymbol.symbolId;
+		return null;
+	}
+	@Override public Void visitNewArrayExpr(MiniJavaParser.NewArrayExprContext ctx) {
+		visitChildren(ctx);
+		if(!("int".equals(ctx.atom().t)))
+			error.report(ctx,"Array index needs to be of type int");
+		ctx.t = "int []";
 		return null;
 	}
 	@Override public Void visitParenthesizedExpr(MiniJavaParser.ParenthesizedExprContext ctx) {

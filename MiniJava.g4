@@ -47,7 +47,7 @@ atom returns [String t] : INT		                            #intExpr
      | 'new' ID '(' ')' 		                                #newExpr
      | '(' expr ')'			                                    #parenthesizedExpr
      | atom '.' 'length'		                                #lengthExpr
-     | 'new' 'int' '['atom']' 		                          #newArrayExpr
+     | 'new' 'int' '[' atom ']' 		                        #newArrayExpr
      | 'true' 				                                      #trueExpr
      | 'false'				                                      #falseExpr
      | 'this'			                                          #thisExpr;

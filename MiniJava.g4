@@ -32,7 +32,7 @@ statement : '{' statement* '}' 					                    #blockStat
           | ID '=' expr ';' 					                      #assignStat
           | ID '[' expr ']' '=' expr ';' 			              #assignArrayStat;
 
-expr returns [String t] : expr '[' expr']' 	   	            #arrayExpr
+expr returns [String t] : expr '[' expr ']'	   	            #arrayExpr
      | expr '.' ID '(' ( expr ( ',' expr )* )? ')' 	        #methodCallExpr
      | ( '+' | '-' ) expr 				                          #uniExpr
      | '!' expr 					                                  #notExpr

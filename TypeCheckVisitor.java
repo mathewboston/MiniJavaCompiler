@@ -113,7 +113,7 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		visitChildren(ctx);
 		int n = 0;
 		SymbolAttributes methodSymbol = methodSymbol=symTab.getSymbolTable(n).get(ctx.ID().getText());;
-		while(symTab.getSymbolTable(n) != null){
+		while(n<symTab.getSymbolTableArrayLength()){
 			methodSymbol=symTab.getSymbolTable(n).get(ctx.ID().getText());
 			if(methodSymbol != null) break;
 			n++;

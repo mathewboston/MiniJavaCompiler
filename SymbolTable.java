@@ -60,6 +60,10 @@ public class SymbolTable {
 		return nextLevel.get(id);
 	}
 
+	public int getSymbolTableArrayLength(){
+		return nextLevel.size();
+	}
+
 	public SymbolAttributes get(String id){
 		return symbols.get(id);
 	}

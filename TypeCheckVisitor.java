@@ -219,8 +219,6 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	}
 	@Override public Void visitMultExpr(MiniJavaParser.MultExprContext ctx) {
 		visitChildren(ctx);
-		// although we don't need it here, we can check if it's a '+':
-		// if (ctx.op.getType()==MiniJavaParser.ADD) ...
 		if (!("int".equals(ctx.expr(0).t) && "int".equals(ctx.expr(1).t)))
 		error.report(ctx,"* operands must be int type");
 		ctx.t="int";
@@ -228,8 +226,6 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	}
 	@Override public Void visitPlusMinusExpr(MiniJavaParser.PlusMinusExprContext ctx) {
 		visitChildren(ctx);
-		// although we don't need it here, we can check if it's a '+':
-		// if (ctx.op.getType()==MiniJavaParser.ADD) ...
 		if (!("int".equals(ctx.expr(0).t) && "int".equals(ctx.expr(1).t)))
 		error.report(ctx,"+ and - operands must be int type");
 		ctx.t="int";
@@ -237,8 +233,6 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	}
 	@Override public Void visitUniExpr(MiniJavaParser.UniExprContext ctx) {
 		visitChildren(ctx);
-		// although we don't need it here, we can check if it's a '+':
-		// if (ctx.op.getType()==MiniJavaParser.ADD) ...
 		if (!("int".equals(ctx.expr().t)))
 		error.report(ctx,"uni + and - operand must be int type");
 		ctx.t="int";
@@ -303,9 +297,6 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		ctx.t = symTab.getCurrentClass();
 		return null;
 	}
-	/*
-	| 'new' ID '(' ')' #newExpr
-	*/
 	@Override public Void visitNewExpr(MiniJavaParser.NewExprContext ctx) {
 		SymbolAttributes idSymbol=symTab.get(ctx.ID().getText());
 		ctx.t = "";

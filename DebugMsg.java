@@ -1,4 +1,5 @@
-public class DebugMsg 
+public class DebugMsg
+//Dr Longpre
 {
 	boolean reporting;
 

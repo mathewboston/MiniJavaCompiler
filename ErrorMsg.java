@@ -1,4 +1,5 @@
 import org.antlr.v4.runtime.*;
+//Dr longpre , modified by Mathew boston to allow counting
 public class ErrorMsg
 {
  boolean anyErrors, reporting;

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	SymbolTable symTab;
+	public static final byte FIELD = 0, METHOD = 1, PARAM=2, LOCAL=3, CLASS=4;
 	DebugMsg debug = new DebugMsg(true);
 	ErrorMsg error = new ErrorMsg(true);
 	int classID;
@@ -31,7 +32,7 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		classID = 0;
 		methodID = 0;
 		visitChildren(ctx);
-		System.out.println("type checking complete! "+error.errorCount+" errors \n");
+		System.out.println("type checking complete! "+error.errorCount+" error(s) \n");
 		return null;
 	}
 	/*
@@ -177,7 +178,7 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 	@Override public Void visitMethodCallExpr(MiniJavaParser.MethodCallExprContext ctx) {
 		visitChildren(ctx);
 		int n = 0;
-		SymbolAttributes methodSymbol = methodSymbol=symTab.getSymbolTable(n).get(ctx.ID().getText());;
+		SymbolAttributes methodSymbol = null;
 		while(n<symTab.getSymbolTableArrayLength()){
 			methodSymbol=symTab.getSymbolTable(n).get(ctx.ID().getText());
 			if(methodSymbol != null) break;
@@ -187,11 +188,35 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		error.report(ctx,"Method not found: "+ctx.ID().getText());
 		else if (methodSymbol.kind != SymbolTable.METHOD)
 		error.report(ctx,"symbol is not a method");
-		// need to check parameter types
 		if (methodSymbol == null)
 		ctx.t = "";
 		else
 		ctx.t=methodSymbol.type;
+		if(methodSymbol != null){ //check params and arguments match
+			int i = 0;
+			int argCount = 0;
+			int argPos = 1;
+			SymbolTable methodID = null;
+			while(i<symTab.getSymbolTable(n).getSymbolTableArrayLength()){
+				methodID = symTab.getSymbolTable(n).getSymbolTable(i);
+				if(methodSymbol.symbolId.equals(methodID.getCurrentClass())) break;
+				i++;
+			}
+			int paramCount = symTab.getSymbolTable(n).getSymbolTable(i).symbolTableTypeCounter(PARAM);
+			ArrayList<SymbolAttributes> list = symTab.getSymbolTable(n).getSymbolTable(i).symbolTableType(PARAM);
+			while(ctx.expr(argPos)!=null){
+				boolean inParam = false;
+				for(SymbolAttributes param: list){
+					if(param.type.equals(ctx.expr(argPos).t))
+					inParam = true;
+				}
+				if(!inParam)error.report(ctx, methodID.getCurrentClass()+" is not expecting paramater type "+ctx.expr(argPos).t);
+				argPos++;
+				argCount++;
+			}
+			if(argCount != paramCount)
+			error.report(ctx, methodID.getCurrentClass()+" is expecting "+paramCount+" parameter(s) but sees "+argCount);
+		}
 		return null;
 	}
 	@Override public Void visitArrayExpr(MiniJavaParser.ArrayExprContext ctx) {

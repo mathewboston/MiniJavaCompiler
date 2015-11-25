@@ -87,6 +87,30 @@ public class SymbolTable {
 		return false;
 	}
 
+	public int symbolTableTypeCounter(byte type){
+		int count = 0;
+		Collection symbolsCol = symbols.entrySet();
+		Iterator symbolsItr = symbolsCol.iterator();
+		while(symbolsItr.hasNext()){
+			Map.Entry symbolsEntry = (Map.Entry) symbolsItr.next();
+			SymbolAttributes theAttribute = (SymbolAttributes) symbolsEntry.getValue();
+			if(theAttribute.kind == type) count++;
+		}
+		return count;
+	}
+
+	public ArrayList<SymbolAttributes> symbolTableType(byte type){
+		ArrayList<SymbolAttributes> list = new ArrayList<SymbolAttributes>();
+		Collection symbolsCol = symbols.entrySet();
+		Iterator symbolsItr = symbolsCol.iterator();
+		while(symbolsItr.hasNext()){
+			Map.Entry symbolsEntry = (Map.Entry) symbolsItr.next();
+			SymbolAttributes theAttribute = (SymbolAttributes) symbolsEntry.getValue();
+			if(theAttribute.kind == type) list.add(theAttribute);
+		}
+		return list;
+	}
+
 	public void printSymbolTable(){
 		System.out.print("\n");
 		if(SymbolTableType.equals(kindString[4])) System.out.print("     ");

@@ -131,10 +131,8 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		error.report(ctx,"Assignment types don't match: "+idSymbol.type+" and "+ctx.expr().t);
 		return null;
 	}
-
 	/*
 	|	ID '[' expr ']' '=' expr ';'                            #assignArrayStat
-
 	Array is an int []. expr(1) must be of type int. expr(0) is array index, must
 	be of type int. ID must be of type int []
 	*/

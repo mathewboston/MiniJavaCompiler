@@ -159,7 +159,7 @@ public class TypeCheckVisitor extends MiniJavaBaseVisitor<Void> {
 		else if (!"int []".equals(idSymbol.type))
 		error.report(ctx,ctx.ID() + ": Symbol must be of type int []");
 		else if (!"int".equals(ctx.expr(0).t))
-		error.report(ctx,"Array index type don't match: "+idSymbol.type+" and "+ctx.expr(0).t);
+		error.report(ctx,"Array index type don't match: int and "+ctx.expr(0).t);
 		else if (!"int".equals(ctx.expr(1).t))
 		error.report(ctx,"Assignment types don't match: int and "+ctx.expr(1).t);
 		return null;

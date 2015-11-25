@@ -3,4 +3,5 @@ javac *Msg.java
 javac MiniJava*.java
 javac Sym*.java
 javac Type*.java
-javac Test*Visitor.java
+#javac Test*Visitor.java
+javac *CodeGen*.java 

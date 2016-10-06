@@ -8,15 +8,15 @@ compile.bat: a batch file I used to call antlr4 and compile the .java files
 
 FilesMap.txt: this file
 
-indentedTree.txt: an example of an indented tree, for if you want to attempt the extra credit
+indentedTree.txt: an example of an indented tree
 
-MiniJava.g4: a grammar for MiniJava, modified from assignment 1
+MiniJava.g4: a grammar for MiniJava
 
 run.bat: a batch file I used to run the TestGrammar program on TestLinkedList.java & Precedence.java
 
-Precedence.java: to use as input, unchanged from assignment 1
+Precedence.java: to use as input
 
-TestLinkedList.java: to use as input, unchanged from assignment 1
+TestLinkedList.java: to use as input
 
 SymbolAttributes.java: a class describing an entry in the symbol table
 
